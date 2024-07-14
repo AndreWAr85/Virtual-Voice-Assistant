@@ -1,1 +1,1 @@
-console.log('VVA');
+import './style.css';
