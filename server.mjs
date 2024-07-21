@@ -1,22 +1,31 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { Configuration, OpenAIApi } from 'openai';
+import { OpenAI } from 'openai';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+async function listModels() {
+  try {
+    const models = await openai.models.list();
+    console.log('Available models:', models);
+  } catch (error) {
+    console.error('Error listing models:', error);
+  }
+}
+
+listModels();
+
 const app = express();
 const PORT = process.env.PORT || 9001;
 
-console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
-
 app.use(cors({ origin: 'http://localhost:9000' }));
 app.use(bodyParser.json());
-
-const openai = new OpenAIApi(new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-}));
 
 app.post('/api/speech', async (req, res) => {
   try {
@@ -28,19 +37,19 @@ app.post('/api/speech', async (req, res) => {
 
     console.log('Received text:', text);
 
-    const response = await openai.createCompletion({
-      model: 'text-davinci-003',
-      prompt: text,
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4-turbo',
+      messages: [{ role: 'user', content: text }],
       max_tokens: 150,
     });
 
-    console.log('OpenAI response:', response.data);
+    console.log('OpenAI response:', response);
 
-    const answer = response.data.choices[0].text.trim();
+    const answer = response.choices[0].message.content.trim();
     res.json({ answer });
   } catch (error) {
     console.error('Error processing request:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 });
 
