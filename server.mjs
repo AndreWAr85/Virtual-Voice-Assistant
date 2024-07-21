@@ -8,9 +8,11 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 9001;
-app.use(cors());
+
+console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
+
+app.use(cors({ origin: 'http://localhost:9000' }));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 const openai = new OpenAIApi(new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -24,11 +26,15 @@ app.post('/api/speech', async (req, res) => {
       return res.status(400).json({ error: 'No text provided' });
     }
 
+    console.log('Received text:', text);
+
     const response = await openai.createCompletion({
       model: 'text-davinci-003',
       prompt: text,
       max_tokens: 150,
     });
+
+    console.log('OpenAI response:', response.data);
 
     const answer = response.data.choices[0].text.trim();
     res.json({ answer });

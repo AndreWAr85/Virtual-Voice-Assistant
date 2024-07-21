@@ -24,44 +24,57 @@ document.addEventListener('DOMContentLoaded', () => {
   startRecordingButton.addEventListener('click', startRecognition);
 
   function startRecognition() {
+    startRecordingButton.classList.add('active');
     recognition.start();
   }
 
   recognition.onresult = async (event) => {
-    const transcript = event.results[0][0].transcript;
-
-    const userMessage = document.createElement('div');
-    userMessage.classList.add('message', 'question');
-    userMessage.textContent = transcript;
-    messageContainer.appendChild(userMessage);
-
-    adjustMessageWidth(userMessage);
-
+    startRecordingButton.classList.remove('active');
+    console.log('Speech result event:', event); // Отладка
     try {
+      const transcript = event.results[0][0].transcript;
+      console.log('Transcript:', transcript); // Отладка
+
+      const userMessage = document.createElement('div');
+      userMessage.classList.add('message', 'question');
+      userMessage.textContent = transcript;
+      messageContainer.appendChild(userMessage);
+      adjustMessageWidth(userMessage);
+
       const response = await fetch('http://localhost:9001/api/speech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: transcript }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+
       if (data.answer) {
         const answerMessage = document.createElement('div');
         answerMessage.classList.add('message', 'answer');
         answerMessage.textContent = data.answer;
         messageContainer.appendChild(answerMessage);
-
         adjustMessageWidth(answerMessage);
-
         speakText(data.answer);
       }
     } catch (error) {
-      console.error('Ошибка:', error);
+      console.error('Ошибка обработки результата:', error);
     }
   };
 
   recognition.onerror = (event) => {
     console.error('Ошибка распознавания речи:', event.error);
+    startRecordingButton.classList.remove('active');
   };
+
+  function startRecognition() {
+    recognition.start();
+    startRecordingButton.classList.add('active');
+  }
 
   function speakText(text) {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -70,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function adjustMessageWidth(messageElement) {
-    // Создаем временный элемент для измерения ширины текста
     const tempSpan = document.createElement('span');
     tempSpan.style.visibility = 'hidden';
     tempSpan.style.whiteSpace = 'pre';
@@ -80,8 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.body.appendChild(tempSpan);
 
-    // Устанавливаем ширину сообщения в соответствии с шириной временного элемента
-    messageElement.style.width = `${tempSpan.offsetWidth + 100}px`; // Дополнительный отступ
+    messageElement.style.width = `${tempSpan.offsetWidth + 50}px`;
 
     document.body.removeChild(tempSpan);
   }

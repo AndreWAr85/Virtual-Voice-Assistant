@@ -36,7 +36,6 @@ body {
   display: inline-block; /* Используется для автоматического расширения ширины */
 }
 
-
 .message.question {
   background-color: rgb(210, 230, 190);
 }
@@ -48,14 +47,38 @@ body {
 .record-button {
   width: 100px;
   height: 100px;
-  background-image: url('./assets/Patterns and Icon Design for Divorce Lawyer Branding.jpeg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
+  background-color: #4CAF50; /* Зеленый цвет для кнопки */
   border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
   cursor: pointer;
   border-radius: 50%;
   position: fixed;
   bottom: 20px;
   right: 20px;
+  transition: box-shadow 0.3s ease; /* Плавный переход для тени */
+  background-image: url('./assets/Patterns and Icon Design for Divorce Lawyer Branding.jpeg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
+
+.record-button.active {
+  background-color: #f44336; /* Красный цвет для активной кнопки */
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.6); /* Тень для активной кнопки */
+}
+
+.record-button::before {
+  /*content: '🎙️'; /* Иконка микрофона */
+  display: inline-block;
+  margin-right: 10px;
+}
+/*
+.record-button.active::before {
+ content: '⏹️';
+  } */
