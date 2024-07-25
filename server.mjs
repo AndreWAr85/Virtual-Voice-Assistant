@@ -38,7 +38,7 @@ app.post('/api/speech', async (req, res) => {
     console.log('Received text:', text);
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+      model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: text }],
       max_tokens: 150,
     });
